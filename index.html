@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude OS — Sistema Operacional do Claude Code + Hermes</title>
+<meta name="description" content="Guia do Claude OS: um dashboard local que lê seu Claude Code, Codex, Obsidian e mais, com onboarding guiado, melhoria diária (Dream), planejamento de metas (Mission Control) e o assistente Hermes.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0c10; --bg2:#14141b; --card:#16161e; --line:#272730;
+    --txt:#e9e9ee; --mut:#9a9aa6; --amb:#E2A23B; --amb2:#f0c070; --sky:#38bdf8;
+    color-scheme:dark;
+  }
+  body.light{
+    --bg:#f6f7f9; --bg2:#eceef2; --card:#ffffff; --line:#e1e3ea;
+    --txt:#1a1a22; --mut:#5b5b68; --amb:#b9791d; --amb2:#a16207; --sky:#0369a1;
+    color-scheme:light;
+  }
+  body.light .hero .glow{opacity:.5}
+  body.light pre{background:#0e0e14;color:#d6d6e0}
+  body.light pre .c{color:#8a8a98}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.65 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:Sora,sans-serif;line-height:1.15;margin:0}
+  a{color:var(--amb);text-decoration:none}
+  code,pre{font-family:"JetBrains Mono",monospace}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 22px}
+  .mut{color:var(--mut)} .amb{color:var(--amb)}
+  .chip{display:inline-block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--amb);font-weight:600;font-family:Sora}
+  nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(12px);background:rgba(12,12,16,.78);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;gap:22px;height:60px}
+  nav .brand{display:flex;align-items:center;gap:8px;font-family:Sora;font-weight:800;letter-spacing:-.02em;color:var(--amb)}
+  nav .brand .emoji{font-size:1.25rem}
+  nav .sep{color:var(--mut);opacity:.45}
+  nav .inema{color:var(--sky);font-weight:600;font-size:.88rem;font-family:Sora}
+  nav .inema:hover{filter:brightness(1.15)}
+  nav .links{margin-left:auto;display:flex;align-items:center;gap:20px;font-size:.92rem}
+  nav .links a.sec{color:var(--mut)} nav .links a.sec:hover{color:var(--txt)}
+  .tgl{background:var(--bg2);border:1px solid var(--line);color:var(--txt);width:38px;height:38px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:1.05rem}
+  .tgl:hover{border-color:var(--amb)}
+  .btn{display:inline-block;background:var(--amb);color:#1a1206;font-weight:600;padding:.6em 1.05em;border-radius:10px;font-family:Sora}
+  .btn.ghost{background:transparent;color:var(--txt);border:1px solid var(--line)}
+  @media(max-width:760px){nav .links a.sec{display:none}}
+  .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+  .hero .glow{position:absolute;inset:-40% -20% auto auto;width:70%;height:600px;background:radial-gradient(closest-side,rgba(226,162,59,.22),transparent 70%);pointer-events:none}
+  .hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:74px 22px}
+  .hero h1{font-size:clamp(2.2rem,5vw,3.5rem);font-weight:800;letter-spacing:-.025em}
+  .hero p.lead{font-size:1.18rem;color:var(--mut);margin:1.1em 0 1.6em;max-width:38ch}
+  .hero .cta{display:flex;gap:12px;flex-wrap:wrap}
+  .hero figure{margin:0;border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 80px -30px #000}
+  .hero figure img{width:100%;display:block}
+  @media(max-width:780px){.hero .wrap{grid-template-columns:1fr;padding:48px 22px}}
+  section{padding:62px 0;border-bottom:1px solid var(--line)}
+  section h2{font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800;letter-spacing:-.02em}
+  section .sub{color:var(--mut);margin:.6em 0 2em;max-width:62ch}
+  .grid{display:grid;gap:16px}
+  .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)} .g2{grid-template-columns:repeat(2,1fr)}
+  @media(max-width:820px){.g3,.g4{grid-template-columns:1fr 1fr}}
+  @media(max-width:540px){.g2,.g3,.g4{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .card h3{font-size:1.05rem;margin-bottom:.4em}
+  .card p{color:var(--mut);font-size:.92rem;margin:0}
+  .num{display:inline-flex;width:30px;height:30px;align-items:center;justify-content:center;border-radius:8px;background:rgba(226,162,59,.14);color:var(--amb);font-family:Sora;font-weight:800;font-size:.9rem;margin-bottom:.7em}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+  .flow span{background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:.45em .9em;font-size:.85rem;font-family:Sora;font-weight:600}
+  .flow .arr{color:var(--amb);border:none;background:none;padding:0 .1em}
+  pre{background:#0a0a0e;border:1px solid var(--line);border-radius:12px;padding:16px 18px;overflow:auto;font-size:.86rem;line-height:1.6;color:#d6d6e0}
+  pre .c{color:#6f6f7c} pre .k{color:var(--amb2)} pre .s{color:#9ece6a}
+  .step{display:grid;grid-template-columns:46px 1fr;gap:16px;margin-bottom:26px}
+  .step .b{width:46px;height:46px;border-radius:12px;background:var(--amb);color:#1a1206;font-family:Sora;font-weight:800;font-size:1.25rem;display:flex;align-items:center;justify-content:center}
+  .step h3{font-size:1.12rem;margin-bottom:.3em}
+  .step p{color:var(--mut);margin:.2em 0 .7em}
+  .ex{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:680px){.ex{grid-template-columns:1fr}}
+  .ex figure{margin:0;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+  .ex figure img{width:100%;display:block}
+  .ex figcaption{padding:12px 14px;font-size:.88rem;color:var(--mut);background:var(--card)}
+  .phase{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+  .phase:last-child{border:none}
+  .phase .tag{flex:0 0 92px;font-family:Sora;font-weight:800;color:var(--amb)}
+  .phase .d strong{display:block;margin-bottom:.2em}
+  .phase .d span{color:var(--mut);font-size:.92rem}
+  footer{padding:46px 0;text-align:center;color:var(--mut);font-size:.9rem}
+  .pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:.3em .8em;font-size:.78rem;color:var(--mut);margin:0 4px}
+  .note{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--amb);border-radius:10px;padding:14px 16px;color:var(--mut);font-size:.9rem;margin-top:18px}
+  .note strong{color:var(--txt)}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <a class="brand" href="#top"><span class="emoji">🪽</span> Claude OS</a>
+  <span class="sep">|</span>
+  <a class="inema" href="https://inema.club" target="_blank" rel="noopener">INEMA.CLUB</a>
+  <div class="links">
+    <a class="sec" href="#oque">O que é</a>
+    <a class="sec" href="#fluxo">Como funciona</a>
+    <a class="sec" href="#guia">Guia de uso</a>
+    <a class="sec" href="#exemplos">Na prática</a>
+    <a class="sec" href="#roadmap">Roadmap</a>
+    <button class="tgl" id="themeToggle" aria-label="Alternar tema" title="Alternar tema">🌙</button>
+    <a class="btn" href="https://github.com/inematds/claude-hermes-os" target="_blank" rel="noopener">GitHub</a>
+  </div>
+</div></nav>
+
+<header class="hero" id="top">
+  <div class="glow"></div>
+  <div class="wrap">
+    <div>
+      <span class="chip">Dashboard local · Claude Code + Hermes</span>
+      <h1>O <span class="amb">sistema operacional</span> da sua IA.</h1>
+      <p class="lead">O Claude OS lê seu Claude Code, Codex, Obsidian, Pinecone e OpenRouter direto da sua máquina e transforma tudo num painel vivo — com onboarding guiado, melhoria automática diária e o assistente Hermes. Você baixa, manda o Claude abrir, e ele se monta sozinho.</p>
+      <div class="cta">
+        <a class="btn" href="#guia">Começar o guia</a>
+        <a class="btn ghost" href="#fluxo">Como funciona</a>
+      </div>
+    </div>
+    <figure style="border:none;box-shadow:none">
+<pre style="margin:0"><span class="c"># Cole isto no Claude Code e diga "siga":</span>
+<span class="k">Acabei de baixar este Operating System.</span>
+<span class="k">Abra a pasta e siga as instruções do</span>
+<span class="k">CLAUDE.md para configurar tudo na</span>
+<span class="k">minha máquina.</span>
+
+<span class="c"># ...60 segundos depois, o painel abre</span>
+<span class="c"># no navegador já populado com seus dados.</span></pre>
+    </figure>
+  </div>
+</header>
+
+<section id="oque"><div class="wrap">
+  <span class="chip">O que é</span>
+  <h2>Um painel que mostra — e melhora — toda a sua operação com IA</h2>
+  <p class="sub">Não é mais um app pra você configurar do zero. É um scaffold pronto, lindo, que o próprio Claude instala e preenche com os dados reais da sua máquina. A regra de ouro: o front nunca toca seus arquivos direto — um único agregador lê o disco (somente leitura) e gera um <code>live-data.json</code>.</p>
+  <div class="grid g3">
+    <div class="card"><h3>📊 Vê tudo num lugar</h3><p>Gasto por modelo, sessões por dia, grafo de memória 3D, skills ativas, conexões (Obsidian, Pinecone, MCP) e atividade por projeto — agregado do seu Claude Code, Codex e mais.</p></div>
+    <div class="card"><h3>🌙 Melhora sozinho (Dream)</h3><p>Todo dia ele audita suas últimas 24h em 8 frentes (custo, skills, automação, ROI…) e entrega as 4 melhores recomendações, cada uma com um botão "rodar a correção".</p></div>
+    <div class="card"><h3>🪽 Tem o Hermes embutido</h3><p>Um assistente pessoal com panteão de personas, chat dentro do painel, backup diário no GitHub e ponte com o Obsidian. Metas e insights espelhados entre Claude e Hermes.</p></div>
+  </div>
+  <div class="note"><strong>Privacidade primeiro.</strong> Os dados de origem (<code>~/.claude/</code>, Obsidian, etc.) são lidos só pra leitura — nunca escritos. A anonimização vem ligada por padrão (reescreve seu usuário/e-mail) e o <code>live-data.json</code> com seus dados reais fica fora do versionamento.</div>
+</div></section>
+
+<section id="fluxo"><div class="wrap">
+  <span class="chip">Como funciona</span>
+  <h2>Do download ao painel vivo</h2>
+  <p class="sub">O agregador é o único ponto que toca o disco. Ele varre suas ferramentas, escreve um JSON, e o app (TanStack Start + Vite, rodando em Bun) renderiza tudo. Um pequeno sidecar local (porta 17873, só loopback) liga os botões "ativar" e "rodar correção".</p>
+  <div class="flow">
+    <span>Baixar o arquivo</span><span class="arr">→</span>
+    <span>Claude abre e segue o CLAUDE.md</span><span class="arr">→</span>
+    <span>bun install · setup · dev</span><span class="arr">→</span>
+    <span>Agregador varre a máquina</span><span class="arr">→</span>
+    <span>live-data.json</span><span class="arr">→</span>
+    <span>Painel no navegador</span>
+  </div>
+  <div class="grid g3" style="margin-top:24px">
+    <div class="card"><h3>O que ele lê</h3><p><code>~/.claude/</code>, <code>~/.codex/</code>, <code>~/.openclaw/</code>, vaults do Obsidian, Pinecone (via API key) e OpenRouter — além de servidores MCP e tarefas agendadas.</p></div>
+    <div class="card"><h3>O que ele gera</h3><p><code>live-data.json</code> (seus dados, fora do git) e o <code>dream-{data}.json</code> do dia. O front só lê esses dois — todo o resto é derivado.</p></div>
+    <div class="card"><h3>Onde roda</h3><p>App em Bun + Vite no navegador local. Otimizado pra macOS (agregador, detecção de plano, cron diário). Em Linux/Windows roda principalmente em modo demo.</p></div>
+  </div>
+</div></section>
+
+<section id="pre"><div class="wrap">
+  <span class="chip">Pré-requisitos</span>
+  <h2>O que você precisa antes de começar</h2>
+  <p class="sub">É um arquivo exclusivo da comunidade (não um repositório público) — você baixa o .zip e o próprio Claude faz o resto. O essencial: Bun, o Claude Code, e o arquivo.</p>
+  <div class="grid g3">
+    <div class="card"><h3>📦 O arquivo (.zip)</h3><p>Baixe na comunidade, descompacte e tenha a pasta à mão (ex.: <code>~/code/claude-os</code>).</p><pre><span class="c"># descompacte onde preferir</span>
+<span class="k">unzip</span> claude-os.zip <span class="k">-d</span> ~/code/</pre></div>
+    <div class="card"><h3>⚡ Bun</h3><p>O runtime que roda o setup e o servidor.</p><pre><span class="c"># instala o Bun (macOS/Linux)</span>
+<span class="k">curl</span> <span class="s">-fsSL https://bun.sh/install</span> | bash</pre></div>
+    <div class="card"><h3>🤖 Claude Code</h3><p>É quem abre a pasta e segue as instruções pra você. Chaves de API (OpenRouter, OpenAI, Pinecone) são opcionais e destravam mais painéis.</p><pre><span class="c"># confira que está instalado</span>
+<span class="k">claude</span> <span class="s">--version</span></pre></div>
+  </div>
+</div></section>
+
+<section id="guia"><div class="wrap">
+  <span class="chip">Guia de uso · passo a passo</span>
+  <h2>Instale, configure e domine em 8 passos</h2>
+  <p class="sub">Do download ao Hermes rodando. Os comandos são reais — o pulo do gato é deixar o Claude Code conduzir a instalação enquanto você responde o onboarding no navegador.</p>
+
+  <div class="step"><div class="b">1</div><div>
+    <h3>Baixe e descompacte o arquivo</h3>
+    <p>Pegue o .zip na comunidade, descompacte e guarde o caminho. Como é exclusivo do grupo, ele vem como arquivo (não como repo público).</p>
+<pre><span class="k">unzip</span> claude-os.zip <span class="k">-d</span> ~/code/   <span class="c"># vira ~/code/claude-os</span></pre>
+  </div></div>
+
+  <div class="step"><div class="b">2</div><div>
+    <h3>Mande o Claude Code abrir e seguir as instruções</h3>
+    <p>Abra o Claude Code na pasta e cole o pedido abaixo. O <code>CLAUDE.md</code> de dentro do arquivo já traz tudo que ele precisa saber pra configurar na sua máquina. Ele pede permissão uma vez — você diz sim.</p>
+<pre><span class="k">Instale o Claude OS pra mim. Os arquivos já estão em ~/code/claude-os.</span>
+<span class="k">Peça permissão uma vez e rode, em ordem, sem mais perguntas:</span>
+<span class="k">  1. cd ~/code/claude-os && bun install</span>
+<span class="k">  2. cd ~/code/claude-os && bun run setup</span>
+<span class="k">  3. cd ~/code/claude-os && bun run dev</span>
+<span class="k">Depois seja meu guia de onboarding e me pergunte o que tenho no stack.</span></pre>
+  </div></div>
+
+  <div class="step"><div class="b">3</div><div>
+    <h3>Os três comandos (o que cada um faz)</h3>
+    <p><code>setup</code> faz o trabalho pesado: varre a máquina, copia a skill <code>/dream</code>, instala o cron diário e marca pro wizard abrir. <code>dev</code> sobe o app + o sidecar e abre o navegador.</p>
+<pre><span class="k">bun install</span>                <span class="c"># dependências</span>
+<span class="k">bun run setup</span>              <span class="c"># varre a máquina + prepara o ambiente</span>
+<span class="k">bun run dev</span>                <span class="c"># sobe o painel e abre o wizard no navegador</span></pre>
+  </div></div>
+
+  <div class="step"><div class="b">4</div><div>
+    <h3>Faça o onboarding (7 passos no navegador)</h3>
+    <p>O wizard abre sozinho. Em ordem: <strong>(1)</strong> seu nome + foto (personaliza tudo, ótimo pra mostrar a clientes); <strong>(2)</strong> ele auto-detecta suas ferramentas (Codex, Claude, Terminal, Hermes…); <strong>(3-4)</strong> conecta Obsidian e Pinecone; <strong>(5)</strong> chaves de API (OpenRouter/OpenAI) pra rastrear gasto; <strong>(6)</strong> "quanto vale sua hora" pra calcular tempo economizado; <strong>(7)</strong> configura o Dream e ativa. Confete. 🎉</p>
+    <div class="note">Não achou alguma ferramenta sua? É normal — são milhões de combinações. Peça ao Claude: <em>"uso a ferramenta X e não vi no Claude OS, adiciona pra mim aqui?"</em> É assim que ele vira <strong>seu</strong>.</div>
+  </div></div>
+
+  <div class="step"><div class="b">5</div><div>
+    <h3>Passeie pelo painel</h3>
+    <p>Home com seu gasto de IA (auto-detectado), grafo de memória 3D (wiki, pessoas, núcleo de memória), skills (dezenas de capacidades), conexões (Obsidian, Pinecone, MCP — dá pra ligar/desligar), tarefas agendadas, sessões por dia e atividade. Algo errado? É só dizer ao Claude pra ajustar.</p>
+<pre><span class="c"># re-rode o agregador quando quiser atualizar os dados</span>
+<span class="k">bun run aggregate</span></pre>
+  </div></div>
+
+  <div class="step"><div class="b">6</div><div>
+    <h3>Ative o Dream (melhoria diária automática)</h3>
+    <p>Um cron às 7h audita suas últimas 24h em 8 frentes, rankeia por <em>severidade × impacto em R$</em> e escreve as Top 4 recomendações. Cada card tem um botão <strong>"rodar a correção"</strong>. Custa ~US$1,50–3 por execução, amortizado na sua assinatura (sem chaves novas).</p>
+<pre><span class="c"># 1. instala a skill /dream no Claude Code</span>
+<span class="k">mkdir -p</span> ~/.claude/skills <span class="k">&&</span> <span class="k">cp -r</span> skills/dream ~/.claude/skills/dream
+<span class="c"># 2. instala o cron diário (macOS)</span>
+<span class="k">bun run install-dream</span>      <span class="c"># --time HH:MM pra mudar a hora</span></pre>
+  </div></div>
+
+  <div class="step"><div class="b">7</div><div>
+    <h3>Planeje metas com o Mission Control</h3>
+    <p>O planejamento de longo prazo. Você copia o prompt do painel, dá ao Claude (ou ao Hermes) uma meta de médio prazo — tipo <em>"chegar a 500 inscritos no YouTube"</em> — e ele quebra em 4 a 10 prompts encadeados (uns do Claude, uns seus) e monta o roadmap pra você ir completando.</p>
+  </div></div>
+
+  <div class="step"><div class="b">8</div><div>
+    <h3>Configure o Hermes Agent</h3>
+    <p>O assistente pessoal. No painel você abre o panteão de personas (Mercury, Alquimista…), dá nome/descrição/modelos a cada uma (modelo forte pra raciocínio, modelo barato pra raspar dados) e conversa com o Hermes ali mesmo. Dois prompts importantes: o de <strong>backup diário no GitHub</strong> (cola no Hermes → ele faz backup todo dia, dá pra "voltar no tempo" se algo quebrar) e o de <strong>ponte com o Obsidian</strong>.</p>
+<pre><span class="c"># no painel do Hermes: copie o prompt de backup e cole no Hermes Agent</span>
+<span class="k">Conecte meu Hermes ao GitHub e faça um backup diário automático.</span></pre>
+  </div></div>
+</div></section>
+
+<section id="exemplos"><div class="wrap">
+  <span class="chip">Na prática</span>
+  <h2>O que ele encontra por você</h2>
+  <p class="sub">Exemplos reais do tipo de insight que o sistema gera sozinho enquanto você dorme ou trabalha.</p>
+  <div class="grid g2">
+    <div class="card"><h3>💸 "Economizei US$100/mês"</h3><p>Numa madrugada o Dream notou: o plano Claude Max 20 estava em 10% de uso semanal. Recomendou trocar pro plano 5x — mesma cobertura por metade do preço. Insight com fonte, pronto pra agir.</p></div>
+    <div class="card"><h3>🧭 Roadmap de uma meta</h3><p>"Lançar uma lista de e-mail com 1.000 pessoas" vira, no Mission Control, 4–10 prompts encadeados + um roadmap visual pra completar passo a passo — alguns executados pelo Claude, outros por você.</p></div>
+    <div class="card"><h3>🧠 Memória conectada</h3><p>O grafo importa seu núcleo de memória, wiki e pessoas, e mostra Obsidian e Pinecone ligados — com chave pra ligar/desligar cada fonte. Tudo navegável em 3D.</p></div>
+    <div class="card"><h3>🪽 Personas sob medida</h3><p>No panteão do Hermes, cada persona tem nome, função e o modelo certo pra ela. Metas espelhadas entre Claude e Hermes deixam você planejar no computador ou no celular.</p></div>
+  </div>
+</div></section>
+
+<section id="roadmap"><div class="wrap">
+  <span class="chip">Roadmap</span>
+  <h2>O que já roda e o que está por vir</h2>
+  <p class="sub">O projeto é vivo e cresce direto. Aspirações vêm claramente marcadas — e você pode pedir ao Claude pra adicionar o que faltar.</p>
+  <div class="phase"><div class="tag">✅ Pronto</div><div class="d"><strong>Agregador + painel + sidecar</strong><span>Varredura da máquina, grafo de memória, skills ativas, wizard de onboarding com ativação em um clique e botão "rodar correção" do Dream.</span></div></div>
+  <div class="phase"><div class="tag">✅ Pronto</div><div class="d"><strong>Dream diário + Hermes Agent</strong><span>Cron de melhoria diária instalável, painel de inteligência de modelos (27 LLMs), panteão, chat e backup no GitHub.</span></div></div>
+  <div class="phase"><div class="tag">⏳ Em breve</div><div class="d"><strong>Distribuição e tempo real</strong><span><code>bun create claude-os</code> no npm, file-watcher pra atualizar o grafo ao editar uma nota, busca Pinecone dentro do grafo e mais polimento "vivo" no painel.</span></div></div>
+  <div class="phase"><div class="tag">🛠️ Faça seu</div><div class="d"><strong>Adicione suas ferramentas</strong><span>Não achou seu stack? Peça ao Claude pra incluir — é assim que o Claude OS se molda exatamente ao seu jeito de trabalhar.</span></div></div>
+</div></section>
+
+<footer>
+  <div class="wrap">
+    <div class="pill">Bun</div><div class="pill">TanStack Start</div><div class="pill">Vite + React</div><div class="pill">Claude Code</div><div class="pill">Hermes</div>
+    <p style="margin-top:18px">Guia INEMA · Claude OS por Jack Roberts (uso exclusivo da comunidade) ·
+      <a href="https://github.com/inematds/claude-hermes-os">inematds/claude-hermes-os</a> ·
+      <a href="https://inema.club">INEMA.CLUB</a></p>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var KEY='claude-hermes-os-theme';
+    var b=document.body, t=document.getElementById('themeToggle');
+    if(localStorage.getItem(KEY)==='light'){ b.classList.add('light'); t.textContent='☀️'; }
+    t.addEventListener('click',function(){
+      var light=b.classList.toggle('light');
+      t.textContent=light?'☀️':'🌙';
+      localStorage.setItem(KEY, light?'light':'dark');
+    });
+  })();
+</script>
+</body>
+</html>
